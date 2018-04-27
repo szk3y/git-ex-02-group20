@@ -41,6 +41,15 @@
  *
 */
 
+function searchObj(dictArray, id) {
+    for(i = 0; i < dictArray.length; i++) {
+        if(dictArray[i].id === id) {
+            return dictArray[i];
+        }
+    }
+    return null;
+}
+
 const http = require('http');
 var url = require('url');
 
@@ -61,9 +70,11 @@ server.on('request', function(req, res) {
     res.setHeader('Connection', 'closed');
     switch(req.method) {
         case 'GET':
-            if(path.match(/^\/$/)) {
+            if(path.match(/^\/id\/:\d/)) {
             // $ curl -i -X GET http://127.0.0.1:3000
-                var body = JSON.stringify(items, null, '\t');
+                var id = parseInt(path.split(':')[1]);
+                var targetObj = searchObj(items, id);
+                var body = JSON.stringify(targetObj, null, '\t');
                 body += '\n';
                 res.setHeader('Content-Length', Buffer.byteLength(body));
                 res.setHeader('Content-Type', 'application/json; charset=utf8');

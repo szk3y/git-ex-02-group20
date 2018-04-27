@@ -156,6 +156,60 @@ server.on('request', function(req, res) {
                 res.statusMessage = ('Not Found');
                 res.end('Not Found');
             }
+            break;
+        case 'PUT':
+            if (path.match(/^\/id\/:\d/)) {
+                // $ curl -i -v --data '{"data": "newdata"}' -X PUT http://127.0.0.1:3000/id/:0
+
+                var id = parseInt(path.split(':')[1]);
+                var data;
+
+                var request = '';
+                req.on('data', function(chunk) {
+                    request += chunk;
+                });
+
+                req.on('end', function() {
+                    try {
+                        data = JSON.parse(request, function(key, value) {
+                            if (key === '')
+                                return value;
+                            if (key === 'data')
+                                return value;
+                        });
+                    } catch(e) {
+                        res.statusCode = 400;
+                        res.statusMessage = e.message;
+                        res.end('Bad Request');
+                    }
+
+                    if ('data' in data) {
+                        var new_item;
+                        for (item of items) {
+                            if (item.id == id) {
+                                item.data = data.data;
+                                new_item = item;
+                            }
+                        }
+
+                        var body = JSON.stringify(new_item, null, '\t');
+                        res.setHeader('Content-Length', Buffer.byteLength(body));
+                        res.setHeader('Content-Type', 'application/json; charset=utf8');
+                        res.statusCode = 200;
+                        res.statusMessage = 'OK';
+                        res.end(body);
+                    } else {
+                        res.statusCode = 400;
+                        res.statusMessage = ('Bad Request');
+                        res.end('Bad Request');
+                    }
+                });
+            } else {
+                res.statusCode = 400;
+                res.statusMessage = ('Bad Request');
+                res.end('Bad Request');
+            }
+            break;
         default:
             res.statusCode = 400;
             res.statusMessage = ('Bad Request');

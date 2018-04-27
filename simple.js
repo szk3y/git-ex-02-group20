@@ -153,9 +153,6 @@ server.on('request', function(req, res) {
                         res.end('Bad Request');
                     }
 
-                    // console.log("id:", id);
-                    // console.log("data:", data);
-
                     if ('data' in data) {
                         var new_item;
                         for (item of items) {

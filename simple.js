@@ -50,6 +50,15 @@ function searchObj(dictArray, id) {
     return null;
 }
 
+function searchObjIndex(dictArray, id) {
+    for(i = 0; i < dictArray.length; i++) {
+        if(dictArray[i].id === id) {
+            return i;
+        }
+    }
+    return -1;
+}
+
 const http = require('http');
 var url = require('url');
 
@@ -127,6 +136,26 @@ server.on('request', function(req, res) {
                 res.end('Bad Request');
             }
             break;
+        case 'DELETE':
+            if(path.match(/^\/id\/:\d/)) {
+                var id = parseInt(path.split(':')[1]);
+                var objIndex = searchObjIndex(items, id);
+                if(objIndex === -1) {
+                    res.statusCode = 404;
+                    res.statusMessage = ('Not Found');
+                    res.end('Not Found');
+                    break;
+                }
+                var body = '\n';
+                items.splice(objIndex, 1);
+                res.statusCode = 200;
+                res.statusMessage = 'OK';
+                res.end(body);
+            } else {
+                res.statusCode = 404;
+                res.statusMessage = ('Not Found');
+                res.end('Not Found');
+            }
         default:
             res.statusCode = 400;
             res.statusMessage = ('Bad Request');
